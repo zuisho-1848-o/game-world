@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マインスイーパー | Game World</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="./mineSweeper.css">
+</head>
+<body>
+    <header></header>
+
+    <main>
+        <h1>マインスイーパー</h1>
+        <section id="game">
+            <div id="gameHeader">
+                <span id="flagArea" class="flagTimeArea"></span>
+                    爆弾：<span id="flagNum">0</span>/<span id="bombNum">10</span>
+                </span>
+                <span id="timeArea" class="flagTimeArea">
+                    時間：<span id="time">000</span>
+                </span>
+            </div>
+            <canvas id="gameCanvas"></canvas>
+            <div class="modeArea">
+                <span>モード切り替え</span>
+                <input type="radio" class="modeRadio" name="modeRadio" id="searchMode" value="search" checked="">
+                    <label for="searchMode">サーチ</label>
+                <input type="radio" class="modeRadio" name="modeRadio" id="flagMode" value="flag">
+                    <label for="flagMode">フラグ</label>
+            </div>
+        </section>
+    </main>
+
+    <footer></footer>
+</body>
+<script src="../../main.js"></script>
+<script src="./mineSweeper.js"></script>
+</html>

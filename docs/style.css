@@ -5,3 +5,31 @@
     list-style: none;
 }
 
+h1 {
+    text-align: center;
+    margin: 20px;
+}
+
+#games {
+    margin: 20px auto;
+    width: 80%;
+    border-radius: 30px;
+    background-color: #ccc;
+    padding: 30px;
+    max-width: 600px;
+}
+
+#games h2 {
+    text-align: center;
+}
+
+#games ul li  {
+    margin: 10px;
+    padding: 10px;
+    list-style-type: disc;
+}
+
+#games ul li a {
+    text-decoration: underline;
+}
+
