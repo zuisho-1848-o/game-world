@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,28 +9,57 @@
     <link rel="stylesheet" href="../../style.css">
     <link rel="stylesheet" href="./mineSweeper.css">
 </head>
+
 <body>
     <header></header>
 
     <main>
+        <div id="backToTop"><a href="../../">トップへ</a></div>
         <h1>マインスイーパー</h1>
-        <section id="game">
-            <div id="gameHeader">
-                <span id="flagArea" class="flagTimeArea"></span>
+
+        <section id="gameRelated">
+
+            <section id="game">
+                <div id="gameHeader">
+                    <span id="flagArea" class="flagTimeArea"></span>
                     爆弾：<span id="flagNum">0</span>/<span id="bombNum">10</span>
-                </span>
-                <span id="timeArea" class="flagTimeArea">
-                    時間：<span id="time">000</span>
-                </span>
-            </div>
-            <canvas id="gameCanvas"></canvas>
-            <div class="modeArea">
-                <span>モード切り替え</span>
-                <input type="radio" class="modeRadio" name="modeRadio" id="searchMode" value="search" checked="">
-                    <label for="searchMode">サーチ</label>
-                <input type="radio" class="modeRadio" name="modeRadio" id="flagMode" value="flag">
-                    <label for="flagMode">フラグ</label>
-            </div>
+                    </span>
+                    <span id="timeArea" class="flagTimeArea">
+                        時間：<span id="time">000</span>
+                    </span>
+                </div>
+                <canvas id="gameCanvas"></canvas>
+
+                <div id="modeArea">
+                    <h3>モード切り替え</h3>
+                    <div class="modeToggle">
+                        <input type="radio" class="modeRadio" name="modeRadio" id="searchMode" value="search" checked="">
+                        <label for="searchMode">サーチ</label>
+                        <input type="radio" class="modeRadio" name="modeRadio" id="flagMode" value="flag">
+                        <label for="flagMode">フラグ</label>
+                    </div>
+                    <span>キーボードでも操作可能。<br>（f → フラグモード、s → サーチモード）</span>
+                </div>
+            </section>
+
+            <section id="settings">
+                <h2>設定・リスタート</h2>
+                <div id="columnNumArea">
+                    <h3>列の数</h3>
+                    <input type="number" name="columnNum" id="columnNum" value="10">
+                </div>
+                <div id="browNumArea">
+                    <h3>行の数</h3>
+                    <input type="number" name="rowNum" id="rowNum" value="10">
+                </div>
+                <div id="bombNumArea">
+                    <h3>爆弾の数</h3>
+                    <input type="number" name="bomNum" id="bomNum" value="10">
+                </div>
+
+                <input type="button" name="restartBtn" id="restartBtn" value="Restart">
+            </section>
+
         </section>
     </main>
 
@@ -37,4 +67,5 @@
 </body>
 <script src="../../main.js"></script>
 <script src="./mineSweeper.js"></script>
+
 </html>

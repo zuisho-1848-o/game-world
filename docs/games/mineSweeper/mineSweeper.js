@@ -35,7 +35,9 @@ class Cell {
         }
     }
 
-    // 設置成功→"set", 削除成功→"removed", 失敗→false を返す。
+    /**
+     * 設置成功→"set", 削除成功→"remove", 失敗→false を返す。
+     */
     tryToggleFlag() {
         if (this.state == "close") {
             this.state = "flag";
@@ -58,25 +60,30 @@ class Game {
         // 非同期だからロードを待った方がいいかも。
         this.loadImages();
 
+        this.canvas = document.querySelector(canvasID);
+        this.ctx = this.canvas.getContext("2d");
+
         this.rowNum = rowNum;
         this.columnNum = columnNum;
         this.bombNum = bombNum;
         this.cellSize = cellSize;
 
-        this.canvas = document.querySelector(canvasID);
-        this.ctx = this.canvas.getContext("2d");
-        this.width = cellSize * rowNum;
-        this.height = cellSize * columnNum;
+        this.width = cellSize * columnNum;
+        this.height = cellSize * rowNum;
         this.canvas.width = this.width;
         this.canvas.height = this.height;
+        this.canvas.style.width = this.width + "px";
+        this.canvas.style.height = this.height + "px";
+
 
         this.gameState = "ready" // "run", "clear", "over"
+        this.cursorType = "search" // "flag";
         this.flagNum = 0;
         this.time = 0;
+
         this.closeColor = ["#88ff88", "#66dd66"];
         this.openColor = ["#E19661", "#806C68"];
 
-        this.cursorType = "search" // "flag";
 
         this.flagNumSpan = document.querySelector(flagNumSpanID);
         this.bombNumSpan = document.querySelector(bombNumSpanID);
@@ -87,10 +94,38 @@ class Game {
         this.bombNumSpan.innerHTML = bombNum;
     }
 
+
+    restart(rowNum, columnNum, bombNum, cellSize) {
+        // cancelAnimationFrame(this.animationFrameID);
+        clearInterval(this.calcTimeIntervalID);
+
+        this.rowNum = rowNum;
+        this.columnNum = columnNum;
+        this.bombNum = bombNum;
+        this.cellSize = cellSize;
+
+        this.width = cellSize * columnNum;
+        this.height = cellSize * rowNum;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+        this.canvas.style.width = this.width + "px";
+        this.canvas.style.height = this.height + "px";
+
+        this.gameState = "ready" // "run", "clear", "over"
+        this.cursorType = "search" // "flag";
+
+        this.flagNum = 0;
+        this.time = 0;
+
+        this.field = this.initField();
+        // this.animationFrameID = requestAnimationFrame(this.update.bind(this));
+    }
+
+
     init() {
         // field[y][x] でアクセス。
         this.field = this.initField();
-        requestAnimationFrame(this.update.bind(this));
+        this.animationFrameID = requestAnimationFrame(this.update.bind(this));
         this.canvas.addEventListener("click", (e) => {
             const { canvasX, canvasY } = this.clickEventToCanvasXY(e);
             this.handleClick(canvasX, canvasY);
@@ -148,6 +183,7 @@ class Game {
         this.createField(clickedCellRow, clickedCellColumn);
         this.startTime = new Date().getTime();
         this.time = 0;
+        this.flagNum = 0;
         this.calcTimeIntervalID = setInterval(this.calcTime.bind(this), 200);
         this.gameState = "run";
     }
@@ -168,7 +204,7 @@ class Game {
     }
 
     setBomb(clickedCellRow, clickedCellColumn) {
-        const clickedCellNum = clickedCellRow * columnNum + clickedCellColumn;
+        const clickedCellNum = clickedCellRow * this.columnNum + clickedCellColumn;
         console.log(clickedCellNum);
         const randInts = pickN(0, this.rowNum * this.columnNum - 2, this.bombNum);
 
@@ -311,6 +347,7 @@ class Game {
 
     updateTime() {
         const second = msToSecond(this.time);
+        if(second > 999) second = 999;
         this.timeSpan.innerHTML = ("000" + second).slice(-3);
     }
 
@@ -430,6 +467,7 @@ class Game {
 
 }
 
+
 const rowNum = 10;
 const columnNum = 10;
 const bombNum = 10;
@@ -437,6 +475,8 @@ const cellSize = 500 / rowNum;
 
 const game = new Game(rowNum, columnNum, bombNum, "#gameCanvas", cellSize, "#flagNum", "#bombNum", "#time", "#searchMode", "#flagMode");
 game.init();
+
+
 
 const radioBtns = document.querySelectorAll(`input[type='radio'][name='modeRadio']`);
 
@@ -452,10 +492,26 @@ for (let target of radioBtns) {
     });
 }
 
+
 document.addEventListener("keyup", (e) => {
     if(e.key == "f") {
         game.changeMode("flag");
     } else if(e.key == "s") {
         game.changeMode("search");
     }
+})
+
+
+
+const columnNumInput = document.querySelector("#columnNum");
+const rowNumInput = document.querySelector("#rowNum");
+const bombNumInput = document.querySelector("#bomNum");
+const restartBtn = document.querySelector("#restartBtn");
+
+restartBtn.addEventListener("click", () => {
+    let columnNum = Math.abs(Math.floor(columnNumInput.value)) || 10;
+    let rowNum = Math.abs(Math.floor(rowNumInput.value)) || 10;
+    let bombNum = Math.abs(Math.floor(bombNumInput.value)) || Math.floor((columnNum * rowNumInput) / 10);
+    console.log(columnNum, rowNum, bombNum);
+    game.restart(columnNum, rowNum, bombNum, 50);
 })

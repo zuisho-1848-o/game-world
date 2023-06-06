@@ -1,3 +1,13 @@
+
+input[type="button"] {
+    cursor: pointer;
+}
+
+#gameRelated {
+    display: flex;
+    justify-content: space-around;
+}
+
 #gameHeader {
     margin: 20px auto;
     text-align: center;
@@ -8,21 +18,33 @@
 }
 
 
+#game {
+    overflow: scroll;
+    padding: 20px;
+}
+
+
 
 #gameCanvas {
     width: 500px;
     height: 500px;
     margin: auto;
     display: block;
+    border: 5px black solid;
 }
 
 
+
+#modeArea {
+    text-align: center;
+    margin: 20px auto;
+}
 
 
 /* https://webparts.cman.jp/button/onoff/ */
 
 /* === ボタンを表示するエリア ============================== */
-.modeArea {
+.modeToggle {
     position: relative;
     margin: auto;
     width: 160px;
@@ -31,12 +53,12 @@
 }
 
 /* === ラジオボタン ======================================== */
-.modeArea input[type="radio"] {
+.modeToggle input[type="radio"] {
     display: none;
 }
 
 /* === ラジオボタンのラベル（標準） ======================== */
-.modeArea label {
+.modeToggle label {
     display: block;
     position: absolute;
     top: 0;
@@ -52,7 +74,7 @@
 }
 
 /* === ON側のラジオボタンのラベル（標準） ================== */
-.modeArea #searchMode+label {
+.modeToggle #searchMode+label {
     right: 50%;
     border-radius: 6px 0 0 6px;
     background: #eee;
@@ -61,14 +83,14 @@
 }
 
 /* === ON側のラジオボタンのラベル（ONのとき） ============== */
-.modeArea #searchMode:checked+label {
+.modeToggle #searchMode:checked+label {
     background: linear-gradient(180deg, #00b359, #006633, #00b359);
     color: #fff;
     text-shadow: 1px 1px 1px #333;
 }
 
 /* === OFF側のラジオボタンのラベル（標準） ================ */
-.modeArea #flagMode+label {
+.modeToggle #flagMode+label {
     left: 50%;
     border-radius: 0 6px 6px 0;
     background: #eee;
@@ -77,9 +99,26 @@
 }
 
 /* === OFF側のラジオボタンのラベル（OFFのとき） ============= */
-.modeArea #flagMode:checked+label {
+.modeToggle #flagMode:checked+label {
     /* background: linear-gradient(175deg, #ccc, #999, #ccc); */
     background: linear-gradient(180deg, #b30059, #660033, #b30059);
     color: #fff;
     text-shadow: 1px 1px 1px #333;
+}
+
+
+
+#settings {
+    margin: 20px;
+    padding: 20px;
+    min-width: 150px;
+}
+
+#settings div {
+    margin: 20px auto;
+}
+
+#settings input {
+    width: 90%;
+    padding: 10px;
 }

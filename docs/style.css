@@ -3,12 +3,29 @@
     padding: 0;
     text-decoration: none;
     list-style: none;
+    box-sizing: content-box;
+}
+
+body {
+    background: url("./images/background.jpg");
 }
 
 h1 {
     text-align: center;
     margin: 20px;
 }
+
+#backToTop {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+}
+
+#backToTop a {
+    text-decoration: underline;
+}
+
+
 
 #games {
     margin: 20px auto;
