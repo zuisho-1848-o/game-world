@@ -10,6 +10,7 @@ export interface GameMap {
     rowNum: number;
     columnNum: number;
     playerNum: number;
+    firstMoney: number[];
 }
 
 
@@ -22,7 +23,19 @@ const defaultCellData: CellStatus[] = [
         type: CellType.Plain,
         moveCost: 1,
         defBuff: 0
-    }
+    },
+    {
+        type: CellType.Capital,
+        moveCost: 1,
+        defBuff: 3,
+        supply: {
+            army: 3,
+            navy: 0,
+            airForce: 0
+        },
+        endurance: 3
+    },
+
 ];
 
 
@@ -49,6 +62,7 @@ export class Game {
     selectedUnit?: Unit;
     movableCells?: Cell[];
     attackableCells?: Cell[];
+    playerColors: string[];
 
 
     constructor(canvasID: string, cellSize: number) {
@@ -83,6 +97,8 @@ export class Game {
 
         this.turn = 1;
         this.controlPlayer = 0;
+
+        this.playerColors = ["blue", "red"];
     }
 
 
@@ -96,6 +112,11 @@ export class Game {
         this.humanNum = humanNum;
         this.AINum = this.playerNum - this.humanNum;
 
+        this.players = [];
+        for(let i = 0; i < this.playerNum; i++) {
+            this.players.push(new Player(i, map.firstMoney[i], true, this.playerColors[i]));
+        }
+
         if(unitData) {
             this.unitData = unitData;
         }
@@ -103,6 +124,13 @@ export class Game {
         if(cellData) {
             this.cellData = cellData;
         }
+
+        this.selectedCell = this.field[0][0];
+
+        this.canvas.addEventListener("click", (e) => {
+            const { canvasX, canvasY } = this.clickEventToCanvasXY(e);
+            this.handleClick(canvasX, canvasY);
+        })
 
         requestAnimationFrame(this.draw.bind(this));
     }
@@ -117,7 +145,7 @@ export class Game {
                 if(!cellStatus) {
                     console.error(`initField に失敗しました。理由： cellType "${cellType}" は無効です。`);
                 } else {
-                    row.push(new Cell(j, i, cellType, cellStatus.moveCost, cellStatus.defBuff));
+                    row.push(new Cell(j, i, cellType, cellStatus.moveCost, cellStatus.defBuff, fieldMapData[j][i].belong));
                 }
             }
             field.push(row);
@@ -147,6 +175,8 @@ export class Game {
             }
         }
 
+        this.drawActiveCell();
+
         // if (this.gameState == "clear") {
         //     this.ctx.font = "100px serif";
         //     this.ctx.fillStyle = "blue";
@@ -169,13 +199,34 @@ export class Game {
         const cellCanvasLeft = j * this.cellSize;
         const cellCanvasTop = i * this.cellSize
 
-        if (cell.type == "plain") {
+        if (cell.type == CellType.Plain) {
             this.ctx.fillStyle = this.cellData.find(cell => cell.type == CellType.Plain)?.color || "green";
             this.ctx.fillRect(cellCanvasLeft, cellCanvasTop, this.cellSize, this.cellSize);
 
+        } else if(cell.type == CellType.Capital) {
+            this.ctx.fillStyle = "white";
+            this.ctx.fillRect(cellCanvasLeft, cellCanvasTop, this.cellSize, this.cellSize);
+
+            this.ctx.fillStyle = "gray";
+            // console.log(cell.belong);
+            if(cell.belong >= 0) {
+                const color = this.playerColors[cell.belong];
+                if(color) {
+                    this.ctx.fillStyle = color;
+                }
+            }
+            const text = "首"
+            this.ctx.fillText(text, cellCanvasLeft + this.cellSize / 2, cellCanvasTop + this.cellSize / 2);
         } else {
 
             // this.ctx.drawImage(this.images.flag, cellCanvasLeft, cellCanvasTop, this.cellSize, this.cellSize);
+        }
+    }
+
+    drawActiveCell() {
+        this.ctx.strokeStyle = "yellow";
+        if(this.selectedCell) {
+            this.ctx.strokeRect(this.selectedCell.x * this.cellSize, this.selectedCell.y * this.cellSize, this.cellSize, this.cellSize);
         }
     }
 
@@ -193,6 +244,37 @@ export class Game {
         this.canvas.height = this.height;
         this.canvas.style.width = this.width + "px";
         this.canvas.style.height = this.height + "px";
+    }
+
+
+    handleClick(posX: number, posY: number) {
+
+        const x = Math.floor(posX / this.cellSize);
+        const y = Math.floor(posY / this.cellSize);
+
+        // console.log(x, y);
+
+        this.selectedCell = this.field[y][x];
+
+    }
+
+
+    clickEventToCanvasXY(e: MouseEvent) {
+        const rect = e.target?.getBoundingClientRect();
+
+        // ブラウザ上での座標を求める
+        const viewX = e.clientX - rect.left;
+        const viewY = e.clientY - rect.top;
+
+        // 表示サイズとキャンバスの実サイズの比率を求める
+        const scaleWidth = this.canvas.clientWidth / this.canvas.width;
+        const scaleHeight = this.canvas.clientHeight / this.canvas.height;
+
+        // ブラウザ上でのクリック座標をキャンバス上に変換
+        const canvasX = Math.floor(viewX / scaleWidth);
+        const canvasY = Math.floor(viewY / scaleHeight);
+
+        return { canvasX, canvasY };
     }
 
 }

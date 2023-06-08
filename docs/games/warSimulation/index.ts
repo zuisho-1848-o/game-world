@@ -1,4 +1,4 @@
-import { CellType } from "./Cell";
+import { CellType} from "./Cell";
 import { Game, GameMap } from "./Game";
 console.log("loaded");
 
@@ -7,7 +7,7 @@ const cellSize = 50;
 const game = new Game("#gameCanvas", cellSize);
 
 
-const defaultMapField = [];
+const defaultMapField: {cellType: CellType, belong: number}[][] = [];
 for(let i = 0; i < 10; i++) {
     const row = [];
     for(let j = 0; j < 10; j++) {
@@ -16,6 +16,9 @@ for(let i = 0; i < 10; i++) {
     defaultMapField.push(row);
 
 }
+
+defaultMapField[0][0] = {cellType: CellType.Capital, belong: 0};
+defaultMapField[9][9] = {cellType: CellType.Capital, belong: 1};
 
 console.log(defaultMapField);
 
@@ -26,6 +29,7 @@ const defaultMap: GameMap = {
     playerNum: 2,
     field: defaultMapField,
     units: [],
+    firstMoney: [500, 500],
 }
 
 
