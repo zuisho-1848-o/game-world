@@ -69,6 +69,7 @@ export class Game {
     ctx: CanvasRenderingContext2D;
     cellInfoDiv: HTMLDivElement;
     institutionControlDiv: HTMLDivElement;
+    turnDiv: HTMLDivElement;
     moneyDiv: HTMLDivElement;
     unitData: UnitStatus[];
     cellData: CellStatus[];
@@ -80,7 +81,7 @@ export class Game {
     playerNames: string[];
 
 
-    constructor(canvasID: string, cellSize: number, cellInfoDivID: string, institutionControlDivID: string, moneyDivID: string) {
+    constructor(canvasID: string, cellSize: number, cellInfoDivID: string, institutionControlDivID: string, moneyDivID: string, turnDivID: string) {
         this.field = [[]];
         this.units = [];
         this.players = [];
@@ -110,6 +111,7 @@ export class Game {
         this.cellInfoDiv = document.querySelector(cellInfoDivID) || document.createElement("div");
         this.institutionControlDiv = document.querySelector(institutionControlDivID) || document.createElement("div");
         this.moneyDiv = document.querySelector(moneyDivID) || document.createElement("div");
+        this.turnDiv = document.querySelector(turnDivID) || document.createElement("div");
 
         this.unitData = defaultUnitData;
         this.cellData = defaultCellData;
@@ -148,6 +150,7 @@ export class Game {
         this.selectedCell = this.field[0][0];
         this.handleCellSelect(this.selectedCell);
         this.updateMoney();
+        this.updateTurn();
 
         this.canvas.addEventListener("click", (e) => {
             const { canvasX, canvasY } = this.clickEventToCanvasXY(e);
@@ -316,13 +319,18 @@ export class Game {
         <h3>${cellTypeToName(selectedCell.type)}</h3>`
     }
 
-    updateInstitutionControl(selectedCell: Cell) {
+    updateInstitutionControl(selectedCell?: Cell) {
+        if(!selectedCell) {
+            this.institutionControlDiv.innerHTML = ``;
+            return;
+        }
+
         const trainableUnits = selectedCell.getTrainableUnits();
-        if(trainableUnits.length > 0 && selectedCell.belong == this.controlPlayer) {
+        if(trainableUnits.length > 0 && selectedCell.belong == this.controlPlayer && this.checkCellHasUnitOfWhichPlayer(selectedCell) == -1) {
             const unitLis = [];
             for(let unitType of trainableUnits) {
-                const unitCost = this.unitData.find(unitStatus => unitStatus.type == unitType)?.cost;
-                unitLis.push(`<li>
+                const unitCost = this.getUnitCost(unitType);
+                unitLis.push(`<li class="trainUnitLi" data-type="${unitType}">
                     <div class="unitName">${unitTypeToName(unitType)}</div>
                     <div class="unitCost">${unitCost}円</div>
                 </li>`)
@@ -337,14 +345,65 @@ export class Game {
     }
 
 
+    getUnitCost(unitType: UnitType) {
+        return this.getUnitStatus(unitType)?.cost;
+    }
+
+    getUnitStatus(unitType: UnitType) {
+        const unitStatus = this.unitData.find(unitStatus => unitStatus.type == unitType);
+        if(!unitStatus) {
+            console.error(`unitCost を見つけられませんでした。 UnitType: ${unitType}`);
+        }
+        return unitStatus;
+    }
+
+
+    tryTraining(unitType: UnitType) {
+        const status = this.getUnitStatus(unitType);
+        if(!status) return;
+        const selectedCell = this.selectedCell;
+        if(!selectedCell) return;
+
+        const {maxHP, type, mobility, atk, occupyPower, range, cost, canAttackAfterMove, actionNumPerTurn} = status;
+        const player = this.players[this.controlPlayer];
+
+        if(cost && cost < player.money) {
+            const unit = new Unit(selectedCell?.x, selectedCell?.y, maxHP, type, mobility, atk, occupyPower, range, this.controlPlayer, cost, canAttackAfterMove, actionNumPerTurn)
+            this.units.push(unit);
+
+            unit.stay();
+            player.money -= cost;
+            this.updateMoney();
+            this.updateInstitutionControl(this.selectedCell);
+
+        }
+    }
+
+
+    checkCellHasUnitOfWhichPlayer(cell: Cell) {
+        const {x, y} = cell;
+        const unit = this.units.find(unit => unit.x == x && unit.y == y);
+        if(unit) return unit.belong;
+        return -1;
+    }
+
+
 
     finishTurn() {
-
+        this.controlPlayer += 1;
+        if(this.controlPlayer >= this.playerNum) this.controlPlayer = 0;
+        this.updateTurn();
     }
 
 
     startTurn() {
 
+    }
+
+
+    updateTurn() {
+        let player = this.players[this.controlPlayer];
+        this.turnDiv.innerHTML = `<span style="color: ${player.color}">${player.name} のターン</span>`
     }
 
 
@@ -375,5 +434,6 @@ export class Game {
 
         return { canvasX, canvasY };
     }
+
 
 }

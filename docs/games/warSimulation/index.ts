@@ -4,7 +4,7 @@ console.log("loaded");
 
 
 const cellSize = 50;
-const game = new Game("#gameCanvas", cellSize, "#cellInfo", "#institutionControl", "#money");
+const game = new Game("#gameCanvas", cellSize, "#cellInfo", "#institutionControl", "#money", "#turn");
 
 
 const defaultMapField: {cellType: CellType, belong: number}[][] = [];
@@ -35,3 +35,11 @@ const defaultMap: GameMap = {
 
 
 game.init(defaultMap, 2);
+
+document.addEventListener("click", (e) => {
+    // console.log(e.target);
+    if(e.target?.classList.contains("trainUnitLi")) {
+        const type = e.target.dataset.type;
+        game.tryTraining(type);
+    }
+})
