@@ -1,5 +1,5 @@
-import { Cell, CellType, CellStatus } from "./Cell";
-import { Unit, UnitStatus, UnitType } from "./Unit";
+import { Cell, CellType, CellStatus, cellTypeToName } from "./Cell";
+import { Unit, UnitStatus, UnitType, unitTypeToName } from "./Unit";
 import { Player } from "./Player";
 
 
@@ -15,7 +15,17 @@ export interface GameMap {
 
 
 const defaultUnitData: UnitStatus[] = [
-
+    {
+        type: UnitType.FootSoldier,
+        maxHP: 10,
+        mobility: 5,
+        atk: 7,
+        occupyPower: 1,
+        range: 1,
+        cost: 250,
+        canAttackAfterMove: false,
+        actionNumPerTurn: 1,
+    }
 ];
 
 const defaultCellData: CellStatus[] = [
@@ -33,7 +43,8 @@ const defaultCellData: CellStatus[] = [
             navy: 0,
             airForce: 0
         },
-        endurance: 3
+        endurance: 3,
+        trainableUnits: [UnitType.FootSoldier]
     },
 
 ];
@@ -56,6 +67,9 @@ export class Game {
     humanNum: number
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
+    cellInfoDiv: HTMLDivElement;
+    institutionControlDiv: HTMLDivElement;
+    moneyDiv: HTMLDivElement;
     unitData: UnitStatus[];
     cellData: CellStatus[];
     selectedCell?: Cell;
@@ -63,9 +77,10 @@ export class Game {
     movableCells?: Cell[];
     attackableCells?: Cell[];
     playerColors: string[];
+    playerNames: string[];
 
 
-    constructor(canvasID: string, cellSize: number) {
+    constructor(canvasID: string, cellSize: number, cellInfoDivID: string, institutionControlDivID: string, moneyDivID: string) {
         this.field = [[]];
         this.units = [];
         this.players = [];
@@ -92,6 +107,10 @@ export class Game {
             this.ctx = null as unknown;
         }
 
+        this.cellInfoDiv = document.querySelector(cellInfoDivID) || document.createElement("div");
+        this.institutionControlDiv = document.querySelector(institutionControlDivID) || document.createElement("div");
+        this.moneyDiv = document.querySelector(moneyDivID) || document.createElement("div");
+
         this.unitData = defaultUnitData;
         this.cellData = defaultCellData;
 
@@ -99,6 +118,7 @@ export class Game {
         this.controlPlayer = 0;
 
         this.playerColors = ["blue", "red"];
+        this.playerNames = ["青軍", "赤軍"];
     }
 
 
@@ -114,7 +134,7 @@ export class Game {
 
         this.players = [];
         for(let i = 0; i < this.playerNum; i++) {
-            this.players.push(new Player(i, map.firstMoney[i], true, this.playerColors[i]));
+            this.players.push(new Player(i, map.firstMoney[i], true, this.playerColors[i], this.playerNames[i]));
         }
 
         if(unitData) {
@@ -126,6 +146,8 @@ export class Game {
         }
 
         this.selectedCell = this.field[0][0];
+        this.handleCellSelect(this.selectedCell);
+        this.updateMoney();
 
         this.canvas.addEventListener("click", (e) => {
             const { canvasX, canvasY } = this.clickEventToCanvasXY(e);
@@ -145,7 +167,7 @@ export class Game {
                 if(!cellStatus) {
                     console.error(`initField に失敗しました。理由： cellType "${cellType}" は無効です。`);
                 } else {
-                    row.push(new Cell(j, i, cellType, cellStatus.moveCost, cellStatus.defBuff, fieldMapData[j][i].belong));
+                    row.push(new Cell(j, i, cellType, cellStatus.moveCost, cellStatus.defBuff, fieldMapData[j][i].belong, cellStatus.supply, cellStatus.endurance, cellStatus.maxLevel, cellStatus.trainableUnits));
                 }
             }
             field.push(row);
@@ -175,6 +197,10 @@ export class Game {
             }
         }
 
+        for(let unit of this.units) {
+            this.drawUnit(unit);
+        }
+
         this.drawActiveCell();
 
         // if (this.gameState == "clear") {
@@ -193,11 +219,10 @@ export class Game {
 
     }
 
-
     drawCell(i: number, j: number) {
         const cell = this.field[i][j];
         const cellCanvasLeft = j * this.cellSize;
-        const cellCanvasTop = i * this.cellSize
+        const cellCanvasTop = i * this.cellSize;
 
         if (cell.type == CellType.Plain) {
             this.ctx.fillStyle = this.cellData.find(cell => cell.type == CellType.Plain)?.color || "green";
@@ -218,8 +243,21 @@ export class Game {
             const text = "首"
             this.ctx.fillText(text, cellCanvasLeft + this.cellSize / 2, cellCanvasTop + this.cellSize / 2);
         } else {
-
+            console.error(`cannot draw invalid CellType "${cell.type}"`);
             // this.ctx.drawImage(this.images.flag, cellCanvasLeft, cellCanvasTop, this.cellSize, this.cellSize);
+        }
+    }
+
+    drawUnit(unit: Unit) {
+        const cellCanvasLeft = unit.x * this.cellSize;
+        const cellCanvasTop = unit.y * this.cellSize;
+
+        if(unit.type == UnitType.FootSoldier) {
+            this.ctx.fillStyle = this.playerColors[unit.belong];
+            const text = "歩";
+            this.ctx.fillText(text, cellCanvasLeft + this.cellSize / 2, cellCanvasTop + this.cellSize / 2);
+        } else {
+            console.error(`cannot draw invalid UnitType "${unit.type}"`);
         }
     }
 
@@ -229,6 +267,7 @@ export class Game {
             this.ctx.strokeRect(this.selectedCell.x * this.cellSize, this.selectedCell.y * this.cellSize, this.cellSize, this.cellSize);
         }
     }
+
 
 
     updateRowColumn(rowNum: number, columnNum: number) {
@@ -255,8 +294,68 @@ export class Game {
         // console.log(x, y);
 
         this.selectedCell = this.field[y][x];
+        const selectedUnit = this.units.find(unit => unit.x == x && unit.y == y);
+        if(selectedUnit) this.handleUnitSelect(selectedUnit);
+
+        this.handleCellSelect(this.selectedCell);
+
 
     }
+
+    handleUnitSelect(unit: Unit) {
+
+    }
+
+    handleCellSelect(selectedCell: Cell) {
+        this.updateCellInfo(selectedCell);
+        this.updateInstitutionControl(selectedCell);
+    }
+
+    updateCellInfo(selectedCell: Cell) {
+        this.cellInfoDiv.innerHTML = `<h2>地点情報</h2>
+        <h3>${cellTypeToName(selectedCell.type)}</h3>`
+    }
+
+    updateInstitutionControl(selectedCell: Cell) {
+        const trainableUnits = selectedCell.getTrainableUnits();
+        if(trainableUnits.length > 0 && selectedCell.belong == this.controlPlayer) {
+            const unitLis = [];
+            for(let unitType of trainableUnits) {
+                const unitCost = this.unitData.find(unitStatus => unitStatus.type == unitType)?.cost;
+                unitLis.push(`<li>
+                    <div class="unitName">${unitTypeToName(unitType)}</div>
+                    <div class="unitCost">${unitCost}円</div>
+                </li>`)
+            }
+            this.institutionControlDiv.innerHTML = `<ul class="unitTrain">${unitLis.join("\n")}</ul>`;
+        } else if(selectedCell.canLevelUp(1)) {
+            // ここでレベルアップメニューを表示
+            this.institutionControlDiv.innerHTML = ``;
+        } else {
+            this.institutionControlDiv.innerHTML = ``;
+        }
+    }
+
+
+
+    finishTurn() {
+
+    }
+
+
+    startTurn() {
+
+    }
+
+
+    updateMoney() {
+        this.moneyDiv.innerHTML = ``;
+        for(let player of this.players) {
+            this.moneyDiv.innerHTML += `<span style="color: ${player.color}">${player.name}: ${player.money}円</span>`
+        }
+    }
+
+
 
 
     clickEventToCanvasXY(e: MouseEvent) {

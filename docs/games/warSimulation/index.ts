@@ -4,7 +4,7 @@ console.log("loaded");
 
 
 const cellSize = 50;
-const game = new Game("#gameCanvas", cellSize);
+const game = new Game("#gameCanvas", cellSize, "#cellInfo", "#institutionControl", "#money");
 
 
 const defaultMapField: {cellType: CellType, belong: number}[][] = [];
