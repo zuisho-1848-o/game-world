@@ -1,0 +1,33 @@
+
+input[type="button"] {
+    cursor: pointer;
+}
+
+#gameRelated {
+    display: flex;
+    justify-content: space-around;
+}
+
+#gameHeader {
+    margin: 20px auto;
+    text-align: center;
+}
+
+
+
+#game {
+    overflow: scroll;
+    padding: 20px;
+}
+
+
+
+#gameCanvas {
+    width: 500px;
+    height: 500px;
+    margin: auto;
+    display: block;
+    border: 5px black solid;
+}
+
+

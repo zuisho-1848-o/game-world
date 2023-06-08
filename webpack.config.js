@@ -8,7 +8,7 @@ module.exports = {
     // ファイルの出力設定
     output: {
         //  出力ファイルのディレクトリ名
-        path: `./docs/games/warSimulation`,
+        path: `${__dirname}/docs/games/warSimulation`,
         // 出力ファイル名
         filename: "warSimulation.js"
     },

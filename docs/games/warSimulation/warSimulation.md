@@ -1,4 +1,4 @@
-# 戦争シミュレーションゲーム
+# 戦争シミュレーションゲームの最初の構想
 
 
 
@@ -37,7 +37,7 @@
 * moveFix(Unit, x, y)
 * calcMovableCell(Unit)
 * attack(attackUnit, defenseUnit)
-* calcAttackableCellAftetTempMove(Unit)
+* calcAttackableCellAfterTempMove(Unit)
 * save()
 * finishTurn()
 * startTurn(playerID) 占領とターン収入と補給
@@ -58,7 +58,7 @@
 * moveCost: number
 * defBuff: number（%）
 * (isSelected)
-* type: CellType == "grass" |"city"|"capital"| | "factory" | "mountain" |"river"|"sea"
+* type: CellType == "grass" |"city"|"capital"| | "factory" | "mountain" | "river" | "sea"
 * （unit?: Unit | null）
 
 ユニットはセルに付属させずxyで管理するほうが良さそう
