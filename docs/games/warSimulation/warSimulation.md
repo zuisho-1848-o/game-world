@@ -40,7 +40,7 @@
 * calcAttackableCellAfterTempMove(Unit)
 * save()
 * finishTurn()
-* startTurn(playerID) 生産と占領とターン収入と補給
+* startTurn(playerID) 勝敗判定と生産と占領とターン収入と補給
 * draw()
   * drawCell()
   * drawUnit()

@@ -36,8 +36,8 @@ export class Unit {
     constructor(x: number, y: number, maxHP: number, type: UnitType, mobility: number, atk: number, occupyPower: number, range: number, belong: number, cost: number, canAttackAfterMove: boolean, actionNumPerTurn: number) {
         this.x = x;
         this.y = y;
-        this.xTemp = -1;
-        this.yTemp = -1;
+        this.xTemp = x;
+        this.yTemp = y;
 
         this.maxHP = maxHP;
         this.hp = maxHP;
@@ -60,12 +60,25 @@ export class Unit {
     move(x: number, y: number) {
         this.x = x;
         this.y = y;
+        this.xTemp = x;
+        this.yTemp = y;
+        this.thisTurnMovedNum += 1;
+    }
+
+    moveFix() {
+        this.x = this.xTemp;
+        this.y = this.yTemp;
         this.thisTurnMovedNum += 1;
     }
 
     tempMove(x: number, y: number) {
         this.xTemp = x;
         this.yTemp = y;
+    }
+
+    cancelTempMove() {
+        this.xTemp = this.x;
+        this.yTemp = this.y;
     }
 
     damage(point: number) {

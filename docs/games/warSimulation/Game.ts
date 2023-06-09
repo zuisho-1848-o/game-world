@@ -44,7 +44,8 @@ const defaultCellData: CellStatus[] = [
             airForce: 0
         },
         endurance: 3,
-        trainableUnits: [UnitType.FootSoldier]
+        trainableUnits: [UnitType.FootSoldier],
+        turnIncome: 500
     },
 
 ];
@@ -71,20 +72,24 @@ export class Game {
     institutionControlDiv: HTMLDivElement;
     turnDiv: HTMLDivElement;
     moneyDiv: HTMLDivElement;
+    unitInfoDiv: HTMLDivElement;
+    unitControlDiv: HTMLDivElement;
     unitData: UnitStatus[];
     cellData: CellStatus[];
     selectedCell?: Cell;
     selectedUnit?: Unit;
-    movableCells?: Cell[];
+    movableCells: Cell[];
     attackableCells?: Cell[];
     playerColors: string[];
     playerNames: string[];
 
 
-    constructor(canvasID: string, cellSize: number, cellInfoDivID: string, institutionControlDivID: string, moneyDivID: string, turnDivID: string) {
+    constructor(canvasID: string, cellSize: number, cellInfoDivID: string, institutionControlDivID: string,
+        moneyDivID: string, turnDivID: string, unitInfoDivID: string, unitControlDivID: string) {
         this.field = [[]];
         this.units = [];
         this.players = [];
+        this.movableCells = [];
 
         this.playerNum = 2;
         this.AINum = 0;
@@ -112,6 +117,8 @@ export class Game {
         this.institutionControlDiv = document.querySelector(institutionControlDivID) || document.createElement("div");
         this.moneyDiv = document.querySelector(moneyDivID) || document.createElement("div");
         this.turnDiv = document.querySelector(turnDivID) || document.createElement("div");
+        this.unitInfoDiv = document.querySelector(unitInfoDivID) || document.createElement("div");
+        this.unitControlDiv = document.querySelector(unitControlDivID) || document.createElement("div");
 
         this.unitData = defaultUnitData;
         this.cellData = defaultCellData;
@@ -129,6 +136,7 @@ export class Game {
 
         this.field = this.initField(map.field);
         this.units = [];
+        this.movableCells = [];
 
         this.playerNum = map.playerNum;
         this.humanNum = humanNum;
@@ -170,7 +178,7 @@ export class Game {
                 if(!cellStatus) {
                     console.error(`initField に失敗しました。理由： cellType "${cellType}" は無効です。`);
                 } else {
-                    row.push(new Cell(j, i, cellType, cellStatus.moveCost, cellStatus.defBuff, fieldMapData[j][i].belong, cellStatus.supply, cellStatus.endurance, cellStatus.maxLevel, cellStatus.trainableUnits));
+                    row.push(new Cell(j, i, cellType, cellStatus.moveCost, cellStatus.defBuff, fieldMapData[j][i].belong, cellStatus.supply, cellStatus.endurance, cellStatus.maxLevel, cellStatus.trainableUnits, cellStatus.turnIncome));
                 }
             }
             field.push(row);
@@ -203,6 +211,8 @@ export class Game {
         for(let unit of this.units) {
             this.drawUnit(unit);
         }
+
+        this.drawMovableArea();
 
         this.drawActiveCell();
 
@@ -252,8 +262,8 @@ export class Game {
     }
 
     drawUnit(unit: Unit) {
-        const cellCanvasLeft = unit.x * this.cellSize;
-        const cellCanvasTop = unit.y * this.cellSize;
+        const cellCanvasLeft = unit.xTemp * this.cellSize;
+        const cellCanvasTop = unit.yTemp * this.cellSize;
 
         if(unit.type == UnitType.FootSoldier) {
             this.ctx.fillStyle = this.playerColors[unit.belong];
@@ -261,6 +271,17 @@ export class Game {
             this.ctx.fillText(text, cellCanvasLeft + this.cellSize / 2, cellCanvasTop + this.cellSize / 2);
         } else {
             console.error(`cannot draw invalid UnitType "${unit.type}"`);
+        }
+    }
+
+    drawMovableArea() {
+        if(!this.movableCells) {
+            return;
+        }
+        for(let cell of this.movableCells) {
+            const {x, y} = cell;
+            this.ctx.fillStyle = "rgba(255,255,255,0.3)";
+            this.ctx.fillRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
         }
     }
 
@@ -298,7 +319,19 @@ export class Game {
 
         this.selectedCell = this.field[y][x];
         const selectedUnit = this.units.find(unit => unit.x == x && unit.y == y);
-        if(selectedUnit) this.handleUnitSelect(selectedUnit);
+        if(selectedUnit) {
+            this.handleUnitSelect(selectedUnit);
+        } else if(this.selectedUnit &&  this.movableCells?.includes(this.selectedCell)) {
+            this.selectedUnit.tempMove(x, y);
+        } else {
+            if(this.selectedUnit) {
+                this.selectedUnit.cancelTempMove();
+            }
+            this.selectedUnit = undefined;
+            this.movableCells = [];
+            this.updateUnitInfo();
+            this.updateUnitControl();
+        }
 
         this.handleCellSelect(this.selectedCell);
 
@@ -306,6 +339,49 @@ export class Game {
     }
 
     handleUnitSelect(unit: Unit) {
+        this.selectedUnit = unit;
+        this.calcMovableCell();
+        this.updateUnitInfo();
+        this.updateUnitControl();
+    }
+
+    calcMovableCell() {
+        // 一旦、moveCostを考えない実装。
+        // moveCost はDPで実装か
+        if(!this.selectedUnit) {
+            return;
+        }
+
+        this.movableCells = [];
+
+        const {x, y, mobility} = this.selectedUnit;
+        for(let i = 0; i < this.rowNum; i++) {
+            for(let j = 0; j < this.columnNum ;j++) {
+                if(Math.abs(i-y) + Math.abs(j - x) <= mobility) {
+                    this.movableCells?.push(this.field[i][j]);
+                }
+            }
+        }
+    }
+
+    updateUnitInfo() {
+        if(!this.selectedUnit) {
+            this.unitInfoDiv.innerHTML = `<h2>ユニット情報</h2>`;
+            return;
+        }
+        this.unitInfoDiv.innerHTML = `<h2>ユニット情報</h2><h3>${unitTypeToName(this.selectedUnit.type)}</h3>`
+    }
+
+    updateUnitControl() {
+        if(!this.selectedUnit) {
+            this.unitInfoDiv.innerHTML = ``;
+            return;
+        }
+
+        this.unitControlDiv.innerHTML = `<h2>ユニット操作</h2>
+        <ul class="unitControlUl">
+            <li class="unitControlLi" data-control="stay">待機</li>
+        </ul>`
 
     }
 
@@ -412,6 +488,18 @@ export class Game {
         for(let player of this.players) {
             this.moneyDiv.innerHTML += `<span style="color: ${player.color}">${player.name}: ${player.money}円</span>`
         }
+    }
+
+
+    unitStay() {
+        if(!this.selectedUnit) {
+            console.error(`selectedUnit が存在しないので "stay" できません`);
+            return;
+        }
+        this.selectedUnit.moveFix();
+        this.selectedUnit = undefined;
+        this.movableCells = [];
+
     }
 
 

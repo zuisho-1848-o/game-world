@@ -22,7 +22,8 @@ export interface CellStatus {
     };
     endurance?: number;
 
-    maxLevel?: number
+    maxLevel?: number;
+    turnIncome?: number;
     trainableUnits?: UnitType[];
 }
 
@@ -30,11 +31,10 @@ export class Cell {
     x: number;
     y: number;
     type: CellType;
-    moveCost: number;
+    moveCost: number; // 陸ユニットの移動コスト。-1の時は陸ユニットは侵入できない。
     defBuff: number;
 
     belong: number;
-    // 補給力, 占領率, 耐久力
     supply: {
         army: number,
         navy: number,
@@ -45,13 +45,14 @@ export class Cell {
 
     level: number;
     maxLevel: number;
+    turnIncome: number
     trainableUnits: UnitType[];
 
     constructor(x: number, y: number, type: CellType, moveCost: number, defBuff: number, belong: number, supply?: {
         army: number,
         navy: number,
         airForce: number
-    }, endurance?: number, maxLevel?: number, trainableUnits?: UnitType[]) {
+    }, endurance?: number, maxLevel?: number, trainableUnits?: UnitType[], turnIncome?: number) {
         this.x = x;
         this.y = y;
         this.type = type;
@@ -71,6 +72,8 @@ export class Cell {
         this.level = 1;
         this.maxLevel = maxLevel || 1;
         this.trainableUnits = trainableUnits || [];
+        this.trainableUnits = trainableUnits || [];
+        this.turnIncome = turnIncome || 0;
     }
 
 

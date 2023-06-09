@@ -4,7 +4,7 @@ console.log("loaded");
 
 
 const cellSize = 50;
-const game = new Game("#gameCanvas", cellSize, "#cellInfo", "#institutionControl", "#money", "#turn");
+const game = new Game("#gameCanvas", cellSize, "#cellInfo", "#institutionControl", "#money", "#turn", "#unitInfo", "#unitControl");
 
 
 const defaultMapField: {cellType: CellType, belong: number}[][] = [];
@@ -41,5 +41,10 @@ document.addEventListener("click", (e) => {
     if(e.target?.classList.contains("trainUnitLi")) {
         const type = e.target.dataset.type;
         game.tryTraining(type);
+    } else if(e.target?.classList.contains("unitControlLi")) {
+        const action = e.target.dataset.control;
+        if(action == "stay") {
+            game.unitStay();
+        }
     }
 })
