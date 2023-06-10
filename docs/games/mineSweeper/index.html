@@ -21,14 +21,44 @@
 
             <section id="game">
                 <div id="gameHeader">
-                    <span id="flagArea" class="flagTimeArea"></span>
-                    爆弾：<span id="flagNum">0</span>/<span id="bombNum">10</span>
-                    </span>
-                    <span id="timeArea" class="flagTimeArea">
-                        時間：<span id="time">000</span>
-                    </span>
+                    <div id="flagArea" class="flagTimeArea">
+                        <img src="./assets/images/flag_trans.png" alt="flag">/ <img src="./assets//images/bomb_trans.png" alt="bomb">:
+                        <span id="flagNum">0</span>/<span id="bombNum">10</span>
+                    </div>
+                    <div id="timeArea" class="flagTimeArea">
+                        <img src="./assets/images/clock.png" alt="時間"> ：<span id="time">000</span>
+                    </div>
                 </div>
                 <canvas id="gameCanvas"></canvas>
+
+                <!-- <div id="modeArea">
+                    <h3>モード切り替え</h3>
+                    <div class="modeToggle">
+                        <input type="radio" class="modeRadio" name="modeRadio" id="searchMode" value="search" checked="">
+                        <label for="searchMode">サーチ</label>
+                        <input type="radio" class="modeRadio" name="modeRadio" id="flagMode" value="flag">
+                        <label for="flagMode">フラグ</label>
+                    </div>
+                    <span>キーボードでも操作可能。<br>（f → フラグモード、s → サーチモード）</span>
+                </div> -->
+            </section>
+
+            <section id="settings">
+                <h2>設定・リスタート</h2>
+                <div id="columnNumArea">
+                    <h3>列の数</h3>
+                    <input type="number" class="numberInput" name="columnNum" id="columnNum" value="10">
+                </div>
+                <div id="browNumArea">
+                    <h3>行の数</h3>
+                    <input type="number" class="numberInput" name="rowNum" id="rowNum" value="10">
+                </div>
+                <div id="bombNumArea">
+                    <h3>爆弾の数</h3>
+                    <input type="number" class="numberInput" name="bomNum" id="bomNum" value="10">
+                </div>
+
+                <input type="button" name="restartBtn" id="restartBtn" value="Restart（キーボード：r）">
 
                 <div id="modeArea">
                     <h3>モード切り替え</h3>
@@ -40,24 +70,6 @@
                     </div>
                     <span>キーボードでも操作可能。<br>（f → フラグモード、s → サーチモード）</span>
                 </div>
-            </section>
-
-            <section id="settings">
-                <h2>設定・リスタート</h2>
-                <div id="columnNumArea">
-                    <h3>列の数</h3>
-                    <input type="number" name="columnNum" id="columnNum" value="10">
-                </div>
-                <div id="browNumArea">
-                    <h3>行の数</h3>
-                    <input type="number" name="rowNum" id="rowNum" value="10">
-                </div>
-                <div id="bombNumArea">
-                    <h3>爆弾の数</h3>
-                    <input type="number" name="bomNum" id="bomNum" value="10">
-                </div>
-
-                <input type="button" name="restartBtn" id="restartBtn" value="Restart（キーボード：r）">
             </section>
 
         </section>

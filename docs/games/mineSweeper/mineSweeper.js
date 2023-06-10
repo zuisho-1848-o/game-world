@@ -128,7 +128,7 @@ class Game {
         this.field = this.initField();
         this.animationFrameID = requestAnimationFrame(this.update.bind(this));
         this.canvas.addEventListener("click", (e) => {
-            const { canvasX, canvasY } = this.clickEventToCanvasXY(e);
+            const { canvasX, canvasY } = this.mouseEventToCanvasXY(e);
             this.handleClick(canvasX, canvasY);
         })
     }
@@ -164,7 +164,7 @@ class Game {
     }
 
 
-    clickEventToCanvasXY(e) {
+    mouseEventToCanvasXY(e) {
         const rect = e.target.getBoundingClientRect();
 
         // ブラウザ上での座標を求める
@@ -308,15 +308,27 @@ class Game {
         }
 
         if (this.gameState == "clear") {
+            this.ctx.fillStyle = "rgba(0,0,0,0.3)";
+            this.ctx.fillRect(0, 0, this.width, this.height);
+
             this.ctx.font = "100px serif";
-            this.ctx.fillStyle = "blue";
+            this.ctx.fillStyle = "#5ce1e6";
             const text = "Clear"
             this.ctx.fillText(text, this.width / 2, this.height / 2);
         } else if (this.gameState == "over") {
+            this.ctx.fillStyle = "rgba(0,0,0,0.3)";
+            this.ctx.fillRect(0, 0, this.width, this.height);
+
             this.ctx.font = "80px serif";
-            this.ctx.fillStyle = "red";
+            this.ctx.fillStyle = "#ff5555";
             const text = "Game Over"
             this.ctx.fillText(text, this.width / 2, this.height / 2);
+        } else {
+            if(this.hoverCell) {
+                const {x, y} = this.hoverCell;
+                this.ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+                this.ctx.fillRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
+            }
         }
 
         // requestAnimationFrame(this.draw.bind(this));
@@ -375,8 +387,7 @@ class Game {
             return;
         }
 
-        const x = Math.floor(posX / this.cellSize);
-        const y = Math.floor(posY / this.cellSize);
+        const {x, y} = this.posXYToCellXY(posX, posY);
 
         if (this.gameState == "ready") {
             this.start(y, x);
@@ -387,6 +398,12 @@ class Game {
 
             this.tryOpenOrToggleFlagCell(x, y);
         }
+    }
+
+    posXYToCellXY(posX, posY) {
+        const x = Math.floor(posX / this.cellSize);
+        const y = Math.floor(posY / this.cellSize);
+        return {x, y};
     }
 
 
