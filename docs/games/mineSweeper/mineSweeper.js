@@ -82,7 +82,8 @@ class Game {
         this.time = 0;
 
         this.closeColor = ["#88ff88", "#66dd66"];
-        this.openColor = ["#E19661", "#806C68"];
+        // this.openColor = ["#E19661", "#806C68"];
+        this.openColor = ["#d6b899", "#e5c19f"];
 
 
         this.flagNumSpan = document.querySelector(flagNumSpanID);
@@ -151,6 +152,15 @@ class Game {
 
         this.images.flag = new Image();
         this.images.flag.src = "assets/images/flag_trans.png";
+
+        this.images.close = new Image();
+        this.images.close.src = "assets/images/close.png";
+
+        this.images.num = {};
+        for(let i = 1; i <= 8; i++) {
+            this.images.num["" + i] = new Image();
+            this.images.num["" + i].src = `assets/images/${i}.png`;
+        }
     }
 
 
@@ -331,11 +341,13 @@ class Game {
             let text = cell.SurroundBombNum;
             if (text == 0) return;
 
-            this.ctx.fillStyle = "black";
-            this.ctx.fillText(text, cellCanvasLeft + Math.floor(this.cellSize / 2), Math.floor(cellCanvasTop + this.cellSize / 2));
+            // this.ctx.fillStyle = "black";
+            // this.ctx.fillText(text, cellCanvasLeft + Math.floor(this.cellSize / 2), Math.floor(cellCanvasTop + this.cellSize / 2));
+            this.ctx.drawImage(this.images.num["" + text], cellCanvasLeft, cellCanvasTop, this.cellSize, this.cellSize);
         } else {
-            this.ctx.fillStyle = this.closeColor[(+i + j) % 2];
-            this.ctx.fillRect(cellCanvasLeft, cellCanvasTop, this.cellSize, this.cellSize);
+            // this.ctx.fillStyle = this.closeColor[(+i + j) % 2];
+            // this.ctx.fillRect(cellCanvasLeft, cellCanvasTop, this.cellSize, this.cellSize);
+            this.ctx.drawImage(this.images.close, cellCanvasLeft, cellCanvasTop, this.cellSize, this.cellSize);
 
             if(cell.state == "flag") {
                 // this.ctx.fillStyle = "black";
@@ -493,20 +505,24 @@ for (let target of radioBtns) {
 }
 
 
+const columnNumInput = document.querySelector("#columnNum");
+const rowNumInput = document.querySelector("#rowNum");
+const bombNumInput = document.querySelector("#bomNum");
+const restartBtn = document.querySelector("#restartBtn");
+
+
 document.addEventListener("keyup", (e) => {
     if(e.key == "f") {
         game.changeMode("flag");
     } else if(e.key == "s") {
         game.changeMode("search");
+    } else if(e.key == "r") {
+        restartBtn.click();
     }
 })
 
 
 
-const columnNumInput = document.querySelector("#columnNum");
-const rowNumInput = document.querySelector("#rowNum");
-const bombNumInput = document.querySelector("#bomNum");
-const restartBtn = document.querySelector("#restartBtn");
 
 restartBtn.addEventListener("click", () => {
     let columnNum = Math.abs(Math.floor(columnNumInput.value)) || 10;
