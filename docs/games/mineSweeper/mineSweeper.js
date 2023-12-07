@@ -548,3 +548,8 @@ restartBtn.addEventListener("click", () => {
     console.log(columnNum, rowNum, bombNum);
     game.restart(columnNum, rowNum, bombNum, 50);
 })
+
+
+// FIXME
+// 爆弾の数変更時に、爆弾の合計数の表示が更新されない
+
