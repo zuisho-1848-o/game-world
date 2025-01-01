@@ -1,0 +1,58 @@
+#gameRelated {
+    padding: 20px;
+}
+#gameCanvas {
+    margin: 30px auto;
+    display: block;
+    width: 400px;
+    height: 400px;
+}
+
+#statusIndicator {
+    margin: 10px auto;
+    display: block;
+    text-align: center;
+    background: white;
+    padding: 10px;
+    max-width: 400px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 2px 5px;
+}
+
+#resetButton {
+    margin: 10px auto;
+    display: block;
+    background: #f1f1f1;
+    border: purple 2px solid;
+    color: purple;
+    padding: 10px;
+    max-width: 400px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+#resetButton:hover {
+    background: purple;
+    color: white;
+}
+
+ul#explain {
+    list-style-type: disc;
+    padding: 10px;
+    padding-left: 30px;
+    margin: 30px auto;
+    max-width: 700px;
+    background: #f1f1f1;
+    border-radius: 5px;
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 2px 5px;
+    box-sizing: border-box;
+}
+ul#explain li {
+    list-style-type: disc;
+    margin: 10px 0;
+}

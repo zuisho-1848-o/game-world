@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3次元4目ならべ | Game World</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="./connect4-3dimension.css">
+</head>
+
+<body>
+    <header></header>
+
+    <main>
+        <div id="backToTop"><a href="../../">トップへ</a></div>
+        <h1>3次元4目ならべ</h1>
+
+        <section id="gameRelated">
+
+            <section id="game">
+                <canvas id="gameCanvas" width="400" height="400"></canvas>
+                <div id="statusIndicator"></div>
+                <button id="resetButton">リセット</button>
+            </section>
+
+            <ul id="explain">
+                <li>
+                    4×4のセルがあり、それぞれ2×2の4つのピースに分かれている。
+                </li>
+                <li>
+                    2人で交互にピースを選び、自分の色にしていく。
+                </li>
+                <li>
+                    「あるセルの4つのピースが全て自分の色になる」または「縦横斜めのいずれかの方向に、『セルの同じ位置（左上など）のピースが自分の色になったセル』が4つ並ぶ」と勝ち。
+                </li>
+            </ul>
+
+        </section>
+    </main>
+
+    <footer></footer>
+</body>
+<script src="../../main.js"></script>
+<script src="./connect4-3dimension.js"></script>
+
+</html>
